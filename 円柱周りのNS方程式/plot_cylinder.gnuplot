@@ -9,22 +9,14 @@ wake_xmax = 4
 wake_ymin = -1.2
 wake_ymax = 1.2
 
-stats "cylinder_wake_map.dat" using 3 nooutput
-max_speed = STATS_max
-if (max_speed < 1.0) max_speed = 1.0
-
-stats "cylinder_wake_map.dat" using 4 nooutput
-omega_abs = (abs(STATS_min) > abs(STATS_max) ? abs(STATS_min) : abs(STATS_max))
-if (omega_abs < 6.0) omega_abs = 6.0
-omega_cap = 180.0
-if (omega_abs < omega_cap) omega_cap = omega_abs
-omega_step = omega_cap / 6.0
+speed_cap = 2.0
+contour_step = 0.05
 
 unset surface
 set contour base
-set cntrparam levels incremental -omega_cap, omega_step, omega_cap
-set table "cylinder_wake_contours.dat"
-splot "cylinder_wake_map.dat" using 1:2:(($4 > omega_cap) ? omega_cap : (($4 < -omega_cap) ? -omega_cap : $4))
+set cntrparam levels incremental contour_step, contour_step, speed_cap
+set table "cylinder_speed_contours.dat"
+splot "cylinder_wake_map.dat" using 1:2:(($3 > speed_cap) ? speed_cap : $3)
 unset table
 unset contour
 
@@ -52,13 +44,15 @@ set xrange [wake_xmin:wake_xmax]
 set yrange [wake_ymin:wake_ymax]
 set xlabel "x [m]"
 set ylabel "y [m]"
+set bmargin 4.5
 set xtics 0.5
 set ytics 0.3
-set palette defined (0 "#0626a8", 0.18 "#0090ff", 0.36 "#00d8c3", 0.55 "#b9f300", 0.72 "#ffd100", 0.88 "#ff7b00", 1 "#cc1800")
-set cbrange [0.0:max_speed]
-set colorbox vertical user origin 0.92,0.18 size 0.018,0.56
-set cblabel "speed [m/s]" offset 1.4,0
+set palette defined (0 "#1734ff", 0.18 "#00d7ff", 0.50 "#00ff00", 0.75 "#fff000", 0.92 "#ff8a00", 1 "#ff2800")
+set cbrange [0.0:speed_cap]
+set colorbox horizontal user origin 0.34,0.06 size 0.32,0.028
+set cbtics ("0" 0.0, "1" 1.0, "2" 2.0) scale 0
+set cblabel "|u| / U_inf" offset 0,1.0
 set object 2 circle at 0,0 size cylinder_radius fc rgb "#202020" fill solid 1.0 border lc rgb "black"
-plot "cylinder_wake_map.dat" using 1:2:3 with image, \
-     "cylinder_wake_contours.dat" using 1:2 with lines lc rgb "#111111" lw 0.8
+plot "cylinder_wake_map.dat" using 1:2:(($3 > speed_cap) ? speed_cap : $3) with image, \
+     "cylinder_speed_contours.dat" using 1:2 with lines lc rgb "#1a1a1a" lw 0.9
 unset object 2
