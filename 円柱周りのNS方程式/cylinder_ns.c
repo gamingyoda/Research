@@ -26,8 +26,8 @@
  */
 enum {
     NR = 101,
-    NTH = 120, //　角度方向の格子点数
-    HISTORY_EVERY = 40,
+    NTH = 100, //　角度方向の格子点数
+    HISTORY_EVERY = 2000,
     POISSON_MAX_ITERS = 180,
     WAKE_NX = 560,
     WAKE_NY = 280
@@ -40,21 +40,21 @@ static const double P_INF = 101.325e3;
 static const double RHO_INF = 1.184;
 static const double GAMMA_AIR = 1.4;
 static const double R_AIR = 287.04;
-static const double MU_AIR = 1.824e-5;
+static const double MU_AIR = 18.24e-6;
 static const double T_REF = 293.15;
 static const double SUTHERLAND_C = 110.4;
-static const double NU_AIR = 1.824e-5 / 1.184;
+static const double NU_AIR = 18.24e-6 / 1.184;
 static const double DR_MIN = 1.0e-5;
 
-static const double TARGET_TIME_DEFAULT = 5.0e-2;
-static const int MAX_STEPS_DEFAULT = 20000;
+static const double TARGET_TIME_DEFAULT = 4.0e-1;
+static const int MAX_STEPS_DEFAULT = 300000;
 
 static const double POISSON_TOL = 1.0e-8;
 static const double SOR_OMEGA = 1.55;
 
 static const double CFL_ADV = 0.36;
 static const double CFL_DIFF = 0.22;
-static const double DT_MAX = 2.5e-6;
+static const double DT_MAX = 2.0e-6;
 static const double DT_MIN = 1.0e-9;
 
 static const double UPWIND_BLEND = 0.28;
