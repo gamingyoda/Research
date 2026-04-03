@@ -49,37 +49,41 @@ static const double DR_MIN = 1.0e-5;
 static const double TARGET_TIME_DEFAULT = 4.0e-1;
 static const int MAX_STEPS_DEFAULT = 300000;
 
-static const double POISSON_TOL = 1.0e-8;
-static const double SOR_OMEGA = 1.55;
+/* Poisson 方程式（psi 計算）の収束設定。 */
+static const double POISSON_TOL = 1.0e-8; // SOR 反復の収束判定しきい値
+static const double SOR_OMEGA = 1.55; // SOR 緩和係数（>1 で加速）
 
 static const double CFL_ADV = 0.36;
 static const double CFL_DIFF = 0.22;
 static const double DT_MAX = 2.0e-6;
 static const double DT_MIN = 1.0e-9;
 
-static const double UPWIND_BLEND = 0.28;
-static const double OUTLET_WAKE_HALF_ANGLE = 40.0 * PI / 180.0;
-static const double GRID_HIGHLIGHT_HALF_ANGLE = 28.0 * PI / 180.0;
-static const double SPONGE_START_RATIO = 0.82;
-static const double SPONGE_SIGMA_MAX = 180.0;
+/* 離散化・境界吸収設定。 */
+static const double UPWIND_BLEND = 0.28; // 中心差分と風上差分の混合率（0=中心,1=風上）
+static const double OUTLET_WAKE_HALF_ANGLE = 40.0 * PI / 180.0; // 外周で渦度流出を許す後流扇形の半角 [rad]
+static const double GRID_HIGHLIGHT_HALF_ANGLE = 28.0 * PI / 180.0; // 可視化で後流格子を強調する半角 [rad]
+static const double SPONGE_START_RATIO = 0.82; // スポンジ層開始位置（半径方向インデックス比）[-]
+static const double SPONGE_SIGMA_MAX = 180.0; // スポンジ層の最大減衰係数 [1/s]
 
-static const double WAKE_XMIN = -0.80;
-static const double WAKE_XMAX = 4.00;
-static const double WAKE_YMIN = -1.20;
-static const double WAKE_YMAX = 1.20;
+/* 後流マップ出力領域（直交座標）。 */
+static const double WAKE_XMIN = -0.80; // 後流マップ x 最小 [m]
+static const double WAKE_XMAX = 4.00; // 後流マップ x 最大 [m]
+static const double WAKE_YMIN = -1.20; // 後流マップ y 最小 [m]
+static const double WAKE_YMAX = 1.20; // 後流マップ y 最大 [m]
 
-static const double KARMAN_ST = 0.2;
-static const double KARMAN_CONVECT_RATIO = 0.88;
-static const double KARMAN_START_X = 0.30;
-static const double KARMAN_X_SPACING_RATIO = 0.82;
-static const double KARMAN_Y_OFFSET_RATIO = 0.34;
-static const double KARMAN_CORE_RATIO = 0.13;
-static const double KARMAN_GAMMA_RATIO = 0.22;
-static const double WAKE_DEFICIT_RATIO = 0.72;
-static const double WAKE_RECIRC_RATIO = 1.10;
-static const double WAKE_STREAM_BLEND_START = 0.18;
-static const double WAKE_STREAM_BLEND_LENGTH = 0.85;
-static const int KARMAN_VORTEX_COUNT = 12;
+/* 可視化用カルマン渦列モデルのパラメータ（ソルバ本体には不使用）。 */
+static const double KARMAN_ST = 0.2; // Strouhal 数（渦放出周波数の基準）[-]
+static const double KARMAN_CONVECT_RATIO = 0.88; // 渦移流速度 / U_inf [-]
+static const double KARMAN_START_X = 0.30; // 渦列を置き始める x 位置 [m]
+static const double KARMAN_X_SPACING_RATIO = 0.82; // 渦中心間隔 / 直径 [-]
+static const double KARMAN_Y_OFFSET_RATIO = 0.34; // 上下渦列のオフセット / 直径 [-]
+static const double KARMAN_CORE_RATIO = 0.13; // 渦コア半径 / 直径 [-]
+static const double KARMAN_GAMMA_RATIO = 0.22; // 循環強さ係数（gamma の規格化係数）[-]
+static const double WAKE_DEFICIT_RATIO = 0.72; // 後流中心の平均速度欠損の強さ [-]
+static const double WAKE_RECIRC_RATIO = 1.10; // 円柱直後の再循環減速の強さ [-]
+static const double WAKE_STREAM_BLEND_START = 0.18; // 主流へのブレンド開始位置 / 直径 [-]
+static const double WAKE_STREAM_BLEND_LENGTH = 0.85; // 主流へのブレンド長さ / 直径 [-]
+static const int KARMAN_VORTEX_COUNT = 12; // 可視化で重ねる離散渦の個数 [-]
 
 /* 極座標格子の幾何情報。 */
 static double r_node[NR];
