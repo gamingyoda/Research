@@ -46,8 +46,9 @@ static const double SUTHERLAND_C = 110.4;
 static const double NU_AIR = 18.24e-6 / 1.184;
 static const double DR_MIN = 1.0e-5;
 
-static const double TARGET_TIME_DEFAULT = 4.0e-1;
-static const int MAX_STEPS_DEFAULT = 300000;
+/* 時間積分の基本設定。 */
+static const double TARGET_TIME_DEFAULT = 4.0e-1; // 現在の陽解法設定で安定に可視化しやすい既定の終了時刻 [s]
+static const int MAX_STEPS_DEFAULT = 300000; // 既定の最大時間ステップ数 [-]
 
 /* Poisson 方程式（psi 計算）の収束設定。 */
 static const double POISSON_TOL = 1.0e-8; // SOR 反復の収束判定しきい値
@@ -115,6 +116,11 @@ static double final_time_reached = 0.0;
 static void move_to_executable_dir(const char *argv0)
 {
     const char *slash = strrchr(argv0, '/');
+    const char *backslash = strrchr(argv0, '\\');
+
+    if (backslash != NULL && (slash == NULL || backslash > slash)) {
+        slash = backslash;
+    }
 
     if (slash != NULL) {
         size_t dir_len = (size_t)(slash - argv0);
@@ -131,6 +137,35 @@ static void move_to_executable_dir(const char *argv0)
         }
         chdir(dirbuf);
     }
+}
+
+/* 配列に NaN / inf が混じっていないか確認する。 */
+static int field_has_nonfinite(double field[NR][NTH])
+{
+    int i;
+    int j;
+
+    for (i = 0; i < NR; ++i) {
+        for (j = 0; j < NTH; ++j) {
+            if (!isfinite(field[i][j])) {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+/* 主要な流れ場が壊れていないか確認する。 */
+static int simulation_has_nonfinite(void)
+{
+    return field_has_nonfinite(psi)
+        || field_has_nonfinite(omega_z)
+        || field_has_nonfinite(ur)
+        || field_has_nonfinite(utheta)
+        || field_has_nonfinite(ux)
+        || field_has_nonfinite(uy)
+        || field_has_nonfinite(speed);
 }
 
 /* theta 方向は周期境界なので添字を 0 ... NTH-1 に巻き戻す。 */
@@ -613,13 +648,22 @@ static double compute_max_speed(void)
     int i;
     int j;
     double max_speed = 0.0;
+    int found_nonfinite = 0;
 
     for (i = 0; i < NR; ++i) {
         for (j = 0; j < NTH; ++j) {
+            if (!isfinite(speed[i][j])) {
+                found_nonfinite = 1;
+                continue;
+            }
             if (speed[i][j] > max_speed) {
                 max_speed = speed[i][j];
             }
         }
+    }
+
+    if (found_nonfinite) {
+        return NAN;
     }
 
     return max_speed;
@@ -630,14 +674,23 @@ static double compute_max_vorticity(void)
     int i;
     int j;
     double max_vort = 0.0;
+    int found_nonfinite = 0;
 
     for (i = 0; i < NR; ++i) {
         for (j = 0; j < NTH; ++j) {
+            if (!isfinite(omega_z[i][j])) {
+                found_nonfinite = 1;
+                continue;
+            }
             double abs_omega = fabs(omega_z[i][j]);
             if (abs_omega > max_vort) {
                 max_vort = abs_omega;
             }
         }
+    }
+
+    if (found_nonfinite) {
+        return NAN;
     }
 
     return max_vort;
@@ -1217,6 +1270,13 @@ int main(int argc, char **argv)
         }
         last_max_delta = rk4_step(last_dt);
         time_now += last_dt;
+
+        if (!isfinite(last_max_delta) || simulation_has_nonfinite()) {
+            write_history_append(history_fp, step, time_now, last_dt, last_max_delta);
+            printf("warning: non-finite value detected at step = %d, t = %.6e s. Stopping before PNG export.\n",
+                   step, time_now);
+            break;
+        }
 
         if (step % HISTORY_EVERY == 0 || step == 1 || time_now >= target_time || step == max_steps) {
             write_history_append(history_fp, step, time_now, last_dt, last_max_delta);
