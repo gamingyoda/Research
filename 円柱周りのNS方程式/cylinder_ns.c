@@ -47,8 +47,8 @@ static const double NU_AIR = 18.24e-6 / 1.184;
 static const double DR_MIN = 1.0e-5;
 
 /* 時間積分の基本設定。 */
-static const double TARGET_TIME_DEFAULT = 4.0e-1; // 現在の陽解法設定で安定に可視化しやすい既定の終了時刻 [s]
-static const int MAX_STEPS_DEFAULT = 300000; // 既定の最大時間ステップ数 [-]
+static const double TARGET_TIME_DEFAULT = 1.0e-3; // 現在の陽解法設定で安定に可視化しやすい既定の終了時刻 [s]
+static const int MAX_STEPS_DEFAULT = 10000; // 既定の最大時間ステップ数 [-]
 
 /* Poisson 方程式（psi 計算）の収束設定。 */
 static const double POISSON_TOL = 1.0e-8; // SOR 反復の収束判定しきい値
