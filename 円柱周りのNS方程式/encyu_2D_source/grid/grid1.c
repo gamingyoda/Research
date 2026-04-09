@@ -4,8 +4,13 @@
 /**********************************/
 
 #include <stdio.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdlib.h>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 /* No:0 */
 #define ds 2.0e-5                /* 最小格子幅 */
