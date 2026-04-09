@@ -55,3 +55,5 @@ dkms.conf
 円柱周りのNS方程式/2024_shocktube_samplecode/
 円柱周りのNS方程式/encyu_2D_source 2/
 *.json
+.vscode/launch.json
+.vscode/tasks.json
