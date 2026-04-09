@@ -3,7 +3,7 @@
 /*       格子読み込み          */
 /*******************************/
 
-/* 各ブロックは 2 次元格子を 1 次元配列に展開して保持する。 */
+
 unsigned int dimIN(int i,int j){
   return i + j*it[0]; 
 }
@@ -17,7 +17,6 @@ unsigned int dimOUT(int i,int j){
 
 
 /*----------メモリ確保関数-------------*/
-/* メモリ確保に失敗したら、その場で終了するためのラッパ。 */
 void *ealloc(size_t size){
   void *p;
 
@@ -30,14 +29,12 @@ void *ealloc(size_t size){
   return p;
 }
 
-/* ブロック 1 個分の double 配列を確保する。 */
 void *memory(int n){
   void *p;
   p = ealloc(sizeof(double)*(it[n])*(jt[n]));
   return p;
 }
 
-/* ブロック 1 個分の int 配列を確保する。 */
 void *memory_int(int n){
   void *p;
   p = ealloc(sizeof(int)*(it[n])*(jt[n]));
@@ -45,7 +42,6 @@ void *memory_int(int n){
 }
 
 
-/* 格子ファイルを読み込み、計算で使う全配列を確保する。 */
 void read(){
   int i, j, ij, n, r0, kk;
   char fn[50];
@@ -66,14 +62,11 @@ void read(){
   for(n=0;n<NT;n++){
     fscanf(fpw,"%d %d\n",&it[n], &jt[n]);
 
-    /* 1 次元配列化したときの隣接セルへのオフセット。 */
     dG[n] = 1;
     dE[n] = it[n];
 
     printf("n:%d it:%d jt:%d Sij:%d\n",n,it[n],jt[n],it[n] * jt[n]);
 
-    /* セル中心の計算は 0..it-2, 0..jt-2 を使うが、
-       境界処理や隣接参照を簡単にするため配列は全体サイズで確保する。 */
     x_xi[n]   = memory(n);
     y_xi[n]   = memory(n);
     x_eta[n]  = memory(n);
@@ -150,12 +143,7 @@ void read(){
       TurbdQ[n][ij]   = memory(n);
       rhsTurbF[n][ij]   = memory(n);
     }
-    /* 各ブロックのファイル並び順:
-       1. セル中心座標
-       2. 面メトリクスとセル面積
-       3. セル中心メトリクス
-       4. 壁面からの距離
-       5. DES 用のフィルタ幅 */
+
     /*************** [ write cell-center grid data ] *******************/
     for(i=0;i<it[n]-1;i++){
       for(j=0;j<jt[n]-1;j++){

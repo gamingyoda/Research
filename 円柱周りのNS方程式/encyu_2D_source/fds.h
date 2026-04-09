@@ -34,7 +34,7 @@ void RIAIL(int n, int r0, double rho_s, double ux_s, double uy_s, double HH, dou
   ky_ = ky * Sk;
   Z   = kx * ux_s + ky * uy_s;
   Z_  = Z * Sk;
-  QQ  = ux_s * ux_s + uy_s * uy_s;
+  QQ = ux_s * ux_s + uy_s * uy_s;
 
   lambda_abs[0] = fabs(Z - CC / Sk);
   lambda_abs[1] = fabs(Z          );

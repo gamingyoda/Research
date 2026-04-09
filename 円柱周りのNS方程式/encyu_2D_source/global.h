@@ -13,8 +13,6 @@
 # define EXTERN extern
 #endif
 
-/* 円柱まわりの格子は 3 つの構造格子ブロックに分けて扱う。 */
-
    /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
    /*%%    グリッド                0〜(it-1) の  it    個                %%*/
    /*%%    セル                    0〜(it-2) の (it-1) 個                %%*/
@@ -33,7 +31,7 @@
 /*-----------------------[Parameter]---------------------------*/
 #define dt 2.0e-6                /* 時間刻み */
 #define ds 2.0e-5                /* 最小格子幅 */
-#define u0 50.0                  /* 主流速度 */
+#define u0 50.0              /* 主流速度 */
 #define p0 101.325e+3            /* 大気圧 */
 #define rho0 1.184               /* 空気密度 */
 #define gamma0 1.4               /* 比熱比 */
@@ -59,12 +57,11 @@
 #define jmax 65                   /* 内部境界との受け渡し定数 */
 #define jmin 182                  /*          上同            */
 
-/* ブロック内の (i,j) を 1 次元配列の添字へ変換する。 */
 EXTERN unsigned int ( *dim[NT] )(int, int);
 
 /*----------------------[ global variables ]-----------------------*/
 EXTERN unsigned int it[NT], jt[NT];                     /* グリッドの総数  番号は 0〜(it-1) */
-EXTERN unsigned int dG[NT], dE[NT];                    /* +i 方向と +j 方向の隣接セルへのオフセット */
+EXTERN unsigned int dG[NT], dE[NT];
 
 EXTERN double *x_xi[NT],  *y_xi[NT];                    /* メトリック */
 EXTERN double *x_eta[NT], *y_eta[NT];                   /* メトリック */
@@ -89,31 +86,31 @@ EXTERN double *Fcen[NT][6];                            /*  対流流束(eta)  */
 EXTERN double *Ev[NT][4];                           /*  粘性流束(xi)   */
 EXTERN double *Fv[NT][4];                           /*  粘性流束(eta)  */
 
-/* 粘性項の評価に使う面情報と勾配。 */
+/* viscous */
 EXTERN double *vis_S[NT][2];
 EXTERN double *duxd[NT][2], *duyd[NT][2], *dcptd[NT][2];
 
-/* 高次補間で使う一時配列。 */
+/* WCNS */
 EXTERN double *Qch[NT][6][2];                            /*   特性量        */
 EXTERN double *Qchcv[NT][4][2];                             /*   特性量        */
 EXTERN double *TurbQchcv[NT][2][2];                             /*   特性量        */
 
-/* 陰解法ソルバで使う作業配列。 */
+/* LUADI */
 EXTERN double *tmpEE[NT][4];                         /* LU-ADI用の流速保管 */
 EXTERN double *dQ[NT][4];                            /* LU-ADI用のデルタQ  */
 EXTERN double *rhsF[NT][4];                            /* LU-ADI用のデルタQ  */
 
-/* SST k-omega 乱流モデルの変数。 */
+/* k-omega */
 EXTERN double *d_wall[NT], *yp[NT], *Mut[NT], *k_turb[NT], *omega[NT], *ut_buff[NT];
 EXTERN double *TurbE[NT][2],  *TurbF[NT][2];   
 EXTERN double *TurbEv[NT][2], *TurbFv[NT][2];   
 EXTERN double *TurbQ[NT][2], *TurbtmpQ[NT][2], *TurbdQ[NT][2], *TurbtmpEE[NT][2], *rhsTurbF[NT][2];
 EXTERN int *clx[NT], *cly[NT];
 
-/* Spalart-Allmaras モデルの変数。 */
+/* SA */
 EXTERN double *NuSA[NT];
 
-/* DES で使うフィルタ幅や代表長さ。 */
+/* DES */
 EXTERN double *deruta_x[NT], *deruta_y[NT];
 EXTERN double *RA_LE[NT], *lkw[NT];
 #define C_DES_kepu 0.61

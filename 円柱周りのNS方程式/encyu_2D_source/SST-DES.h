@@ -258,7 +258,7 @@ static double calc_mix(int n, int r0, double var1, double var2){
 /*----------------------------------------------------------*/
 /*                 長さスケールl_kwを計算する               */
 /*----------------------------------------------------------*/
-static inline double calc_lkw(int n, int r0, double beta_star){
+inline double calc_lkw(int n, int r0, double beta_star){
   return sqrt(k_turb[n][r0]) / (beta_star * omega[n][r0]);
 }
 

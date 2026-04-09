@@ -7,8 +7,7 @@
 
 #define sita11   1.5     //時間二次精度 sita11 = 1.5 / sita22 = 2 
 #define sita22   2       //時間一次精度 sita11 = 1.0 / sita22 = 1
-/* 行列を明示的に作らず、隣接セルとの陰的結合項を評価する。
-   pmflag = -1 なら後方側、pmflag = +1 なら前方側の隣接セルを使う。 */
+
 static  void calcPM(int rr,int n,int pmflag,int ddg,int dde,double **qq,double **turbqq,double (*flux)[6],double (*spe))
 {
   int ii;
@@ -100,7 +99,7 @@ static  void calcPM(int rr,int n,int pmflag,int ddg,int dde,double **qq,double *
   
 }
 
-/* 新しい時間ステップの前に補正量と RHS 配列を初期化する。 */
+
 void dQ_Initial(){
   int n, r0, i, j;
 
@@ -126,10 +125,7 @@ void dQ_Initial(){
   }
 
 }
-/* 流れ場と SST を連成して 1 ステップ進める。
-   1. 残差を組み立てる。
-   2. 陰的補正量を反復で求める。
-   3. Q を更新し、基本変数を取り直す。 */
+
 void gauss_seidel(int time){
   int itr, n, ii, jj, kk, nn, numk, t;
   double errormax;
@@ -141,7 +137,6 @@ void gauss_seidel(int time){
     
   for(itr=0;itr<2;itr++){
 
-    /* 最新の基本変数から対流・粘性流束を再計算する。 */
     fds();
     /* fds_komega(); */
     /* slau(); */
@@ -154,7 +149,6 @@ void gauss_seidel(int time){
     errormax = 0.0;
 
 
-    /* Step 1: 陰的反復の元になる陽的残差を組み立てる。 */
     for(n=0;n<NT;n++){
       int i, j, r0;
 #ifdef _OPENMP
@@ -190,8 +184,7 @@ void gauss_seidel(int time){
 
 
 
-	    /* 段の最初の残差を保存し、台形則型の更新に使う。 */
-	    if(itr==0){
+	    if(t==0){
 	      tmpEE[n][0][r0] = RHS0;
 	      tmpEE[n][1][r0] = RHS1;
 	      tmpEE[n][2][r0] = RHS2;
@@ -209,12 +202,9 @@ void gauss_seidel(int time){
 
 	  }
 	}
-#ifdef _OPENMP
       }
-#endif
     }
 
-    /* Step 2: 行列を作らない sweep 反復で線形化補正量を求める。 */
     for(t=0;t<inneritr;t++){
       for(n=0;n<NT;n++){
 	int i, j, r0;
@@ -239,7 +229,6 @@ void gauss_seidel(int time){
 
 	      r0 = dim[n](i, j);
 				
-	      /* 下側隣接セルの寄与を加える。 */
 	      calcPM(r0,n,-1,dG[n],dE[n],dQ[n],TurbdQ[n],deltaFlux,spe_r0);
 
 	      rhs1[0] = rhsF[n][0][r0] + dt * (deltaFlux[XI][0]+deltaFlux[ETA][0]);
@@ -249,7 +238,6 @@ void gauss_seidel(int time){
 	      rhs1[4] = rhsTurbF[n][0][r0] + dt * (deltaFlux[XI][4]+deltaFlux[ETA][4]);
 	      rhs1[5] = rhsTurbF[n][1][r0] + dt * (deltaFlux[XI][5]+deltaFlux[ETA][5]);
 
-	      /* 上側隣接セルの寄与を加える。 */
 	      calcPM(r0,n,1,dG[n],dE[n],dQ[n],TurbdQ[n],deltaFlux,spe_rt);
 
 	      rhs1[0] -= dt * (deltaFlux[XI][0]+deltaFlux[ETA][0]);
@@ -320,7 +308,7 @@ void gauss_seidel(int time){
     }
   
 
-    /* Step 3: 補正量を反映し、基本変数と乱流変数を更新する。 */
+
     for(n=0;n<NT;n++){
       int i, j, r0;
 
@@ -350,7 +338,6 @@ void gauss_seidel(int time){
 	    TurbQ[n][0][r0] = TurbQ[n][0][r0] + TurbdQ[n][0][r0];
 	    TurbQ[n][1][r0] = TurbQ[n][1][r0] + TurbdQ[n][1][r0];
 
-	    /* 保存変数から基本変数を取り出し直す。 */
 	    invQ = 1.0 / Q[n][0][r0];  /* = 1.0/(rho*v) */
 
 	    rho[n][r0] = Q[n][0][r0] * Jaco;      /*        ^         */
@@ -407,7 +394,6 @@ void gauss_seidel(int time){
 #endif
     }
 
-    /* 次の外側反復に入る前にゴーストセルとブロック境界を更新する。 */
     boundary();
 
     if(itr==0){
@@ -416,3 +402,4 @@ void gauss_seidel(int time){
     
   }
 }
+

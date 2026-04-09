@@ -2,7 +2,6 @@
 /*   Lower Upper Symmetric Gauss Seidel Implicit Scheme  */
 /*                     written by Fujisawa               */
 /*********************************************************/
-/* qq には sweep 中の保存変数補正量 dQ を入れる。 */
 static  void calcPM(int rr,int n,int pmflag,int ddg,int dde,double **qq,double (*flux)[4])
 {
   int ii;
@@ -21,11 +20,13 @@ static  void calcPM(int rr,int n,int pmflag,int ddg,int dde,double **qq,double (
   double tmp,Mu;
   double ALPHA = 1.01;
 
+
+
   ddd[XI]   = ddg;
   ddd[ETA]  = dde;  
 
   SS[XI][X]   = y_eta[n];
-  SS[ETA][X]  = y_xi[n]; 
+  SS[ETA][X]  = y_xi[n];
   
   SS[XI][Y]   = x_eta[n];
   SS[ETA][Y]  = x_xi[n];
@@ -62,7 +63,7 @@ static  void calcPM(int rr,int n,int pmflag,int ddg,int dde,double **qq,double (
 	  ZZ0    = kx* ux[n][rt] + ky* uy[n][rt];
 	  c      = sqrt( gamma0 * Cons_calcP(n, rt) / rho[n][rt]);
 	  tmp    = Cons_calcP(n , rt) / rho[n][rt] / Rair ; /** 温度 **/
-	  Mu     = mu_0 * ( pow((tmp)/(273.15+20.0),1.5) * (273.15+20.0 + C)/(tmp + C));@p
+	  Mu     = mu_0 * ( pow((tmp)/(273.15+20.0),1.5) * (273.15+20.0 + C)/(tmp + C));
 
 	  spe= ALPHA * (fabs(ZZ0) + c*Sk)+ 2.0*(Mu+Mut[n][rt])*Sk*Sk/rho[n][rt];
 	  /* spe= ALPHA * (fabs(ZZ0) + c*Sk); */
@@ -125,7 +126,6 @@ static  void calcLx(int rr,int n,int ddg,int dde,double (*spe))
     }
 }
 
-/* 保存変数の補正量と一時 RHS 配列を初期化する。 */
 void dQ_Initial(){
   int n, r0, i, j;
 
@@ -148,10 +148,6 @@ void dQ_Initial(){
 
 }
 
-/* 物理時間 1 ステップの処理。
-   1. 流束を組み直す。
-   2. LU-SGS の前進・後退 sweep を行う。
-   3. Q から基本変数を更新する。 */
 void gauss_seidel(int time){
   int itr, n, ii, jj, kk, nn, numk;
   double errormax;
@@ -163,7 +159,6 @@ void gauss_seidel(int time){
     
   for(itr=0;itr<t_NUMBER;itr++){
 
-    /* 現在の場から対流流束と粘性流束を再計算する。 */
     fds();
     /* shus(); */
     /* slau(); */
@@ -195,7 +190,6 @@ void gauss_seidel(int time){
 
 	      r0 = dim[n](i, j);
 
-	      /* 有限体積法の収支式から陽的残差を作る。 */
 	      RHS0 = - dt * ((E[n][0][r0+dG[n]] - E[n][0][r0]) - (Ev[n][0][r0+dG[n]] - Ev[n][0][r0]) + (F[n][0][r0+dE[n]] - F[n][0][r0]) - (Fv[n][0][r0+dE[n]] - Fv[n][0][r0]));
 	      RHS1 = - dt * ((E[n][1][r0+dG[n]] - E[n][1][r0]) - (Ev[n][1][r0+dG[n]] - Ev[n][1][r0]) + (F[n][1][r0+dE[n]] - F[n][1][r0]) - (Fv[n][1][r0+dE[n]] - Fv[n][1][r0]));
 	      RHS2 = - dt * ((E[n][2][r0+dG[n]] - E[n][2][r0]) - (Ev[n][2][r0+dG[n]] - Ev[n][2][r0]) + (F[n][2][r0+dE[n]] - F[n][2][r0]) - (Fv[n][2][r0+dE[n]] - Fv[n][2][r0]));
@@ -265,7 +259,6 @@ void gauss_seidel(int time){
 	      rhsF[n][2][r0] = dQ[n][2][r0];
 	      rhsF[n][3][r0] = dQ[n][3][r0];
 
-	      /* 後退 sweep では前方セル側の寄与を差し引く。 */
 	      calcPM(r0,n,1,dG[n],dE[n],rhsF[n],deltaFlux);
 
 	      rhs1[0] = lambda * dt * (deltaFlux[XI][0]+deltaFlux[ETA][0]);
@@ -306,7 +299,7 @@ void gauss_seidel(int time){
 	    dQ[n][2][r0] = rhsF[n][2][r0];
 	    dQ[n][3][r0] = rhsF[n][3][r0];
 
-	    /* 補正量を反映し、Q から rho, u, e を取り出す。 */
+
 	    invQ = 1.0 / Q[n][0][r0];  /* = 1.0/(rho*v) */
 
 	    rho[n][r0] = Q[n][0][r0] * Jaco;      /*        ^         */
@@ -350,7 +343,6 @@ void gauss_seidel(int time){
 #endif
     }
 
-    /* 更新後の内部点に合わせてゴーストセルとブロック境界を更新する。 */
     boundary();
 
     if(itr==(t_NUMBER-1)){

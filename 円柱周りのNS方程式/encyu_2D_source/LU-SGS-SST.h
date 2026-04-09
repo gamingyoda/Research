@@ -4,7 +4,6 @@
 /*                       +komega                      */
 /*                                                    */
 /******************************************************/
-/* qq/turbqq には流れ場と乱流変数の補正量を入れる。 */
 
 static void calcPM(int rr,int n,int pmflag,int ddg,int dde,double **qq,double **turbqq,double (*flux)[6]){
   int ii;
@@ -117,7 +116,6 @@ static void calcLx(int rr,int n,int ddg,int dde,double (*spe)){
   }
 }
 
-/* 新しい物理時間ステップの前に補正量と RHS 配列を初期化する。 */
 void dQ_Initial(){
   int n,r0,i,j;
 
@@ -144,7 +142,6 @@ void dQ_Initial(){
 
 }
 
-/* 流れ場と SST を連成して 1 ステップ進める。 */
 void gauss_seidel(int time){
   int n,itr,ii,jj;
   double errormax;
@@ -156,7 +153,6 @@ void gauss_seidel(int time){
 
   for(itr=0;itr<t_NUMBER;itr++){
 
-    /* 現在の場から流れ場と乱流量の流束を組み直す。 */
     fds();
     fds_komega();
     viscous();
@@ -189,7 +185,6 @@ void gauss_seidel(int time){
 
 	    r0=dim[n](i,j);
 
-	    /* k-omega 方程式の生成・消散項は別に評価する。 */
 	    calc_komega(n,r0,RHSt);
 
 	    RHS0=-dt*((E[n][0][r0+dG[n]]    -E[n][0][r0]    )-(Ev[n][0][r0+dG[n]]    -Ev[n][0][r0]    )+(F[n][0][r0+dE[n]]    -F[n][0][r0]    )-(Fv[n][0][r0+dE[n]]    -Fv[n][0][r0]    ));
@@ -215,7 +210,6 @@ void gauss_seidel(int time){
 	    rhs1[4]=(TurbtmpQ[n][0][r0]-TurbQ[n][0][r0])+0.5*(RHS4+TurbtmpEE[n][0][r0]);
 	    rhs1[5]=(TurbtmpQ[n][1][r0]-TurbQ[n][1][r0])+0.5*(RHS5+TurbtmpEE[n][1][r0]);
 
-	    /* 前進 sweep では下三角側の隣接セル寄与を取り込む。 */
 	    calcPM(r0,n,-1,dG[n],dE[n],dQ[n],TurbdQ[n],deltaFlux);
 
 	    rhs1[0]+=lambda*dt*(deltaFlux[XI][0]+deltaFlux[ETA][0]);
@@ -257,7 +251,6 @@ void gauss_seidel(int time){
 	    rhsTurbF[n][0][r0]=TurbdQ[n][0][r0];
 	    rhsTurbF[n][1][r0]=TurbdQ[n][1][r0];
 
-	    /* 後退 sweep では上三角側の隣接セル寄与を取り除く。 */
 	    calcPM(r0,n,1,dG[n],dE[n],rhsF[n],rhsTurbF[n],deltaFlux);
 
 	    rhs1[0]=lambda*dt*(deltaFlux[XI][0]+deltaFlux[ETA][0]);
@@ -295,7 +288,6 @@ void gauss_seidel(int time){
 	    TurbQ[n][0][r0]=TurbQ[n][0][r0]+rhsTurbF[n][0][r0];
 	    TurbQ[n][1][r0]=TurbQ[n][1][r0]+rhsTurbF[n][1][r0];
 
-	    /* 更新後に基本変数と渦粘性係数を再計算する。 */
 	    dQ[n][0][r0]    =rhsF[n][0][r0];
 	    dQ[n][1][r0]    =rhsF[n][1][r0];
 	    dQ[n][2][r0]    =rhsF[n][2][r0];
@@ -338,7 +330,6 @@ void gauss_seidel(int time){
 #endif
     }
 
-    /* 次の段へ進む前に境界値とブロック境界値を更新する。 */
     boundary();
       
     if(itr==(t_NUMBER-1)){

@@ -5,19 +5,19 @@
 ------------------------------*/
 
 
-static inline double Cons_calcE(int n, int r1){
+inline double Cons_calcE(int n, int r1){
   return p[n][r1] / (gamma0 - 1.0) + 0.5 * rho[n][r1] * (ux[n][r1] * ux[n][r1] + uy[n][r1] * uy[n][r1]);
 }
 
-static inline double Cons_calcP(int n, int r1){
+inline double Cons_calcP(int n, int r1){
   return (gamma0 - 1.0) * (e[n][r1] - 0.5 * rho[n][r1] * (ux[n][r1] * ux[n][r1] + uy[n][r1] * uy[n][r1]));
 }
 
-static inline double Cons_calcH(int n, int r1){
+inline double Cons_calcH(int n, int r1){
   return (e[n][r1] + p[n][r1]) / rho[n][r1]; 
 }
 
-static inline double Cons_calcCpT(int n, int r1){
+inline double Cons_calcCpT(int n, int r1){
   return (Cons_calcE(n, r1) + Cons_calcP(n, r1)) / rho[n][r1] - 0.5 * (ux[n][r1] * ux[n][r1] + uy[n][r1] * uy[n][r1]);
 }
 
