@@ -1,6 +1,0 @@
-readgrid grid_list -2d -r8 -z
-CreateWindow
-grid -z 1
-grid -z 2 -col red
-grid -z 3 -col blue
-grid -z 6 -col pink

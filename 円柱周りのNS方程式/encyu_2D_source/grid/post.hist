@@ -1,9 +1,0 @@
-ReadGrid grid_list -U -Z -2D -O -r8
-CreateWindow -fix
-Grid L=1 -Int 1 1 1 -J 1 Jmax -K 1 Kmax -L 1 Lmax -Z 1
-ConfigureWindow 1 767 48 512 512
-ConfigureWindow 1 767 48 512 512
-ConfigureWindow 1 767 48 512 512
-Grid L=1 -Int 1 1 1 -J 1 Jmax -K 1 Kmax -L 1 Lmax -col red -Z 2
-Grid L=1 -Int 1 1 1 -J 1 Jmax -K 1 Kmax -L 1 Lmax -col blue -Z 3
-Grid L=1 -Int 1 1 1 -J 1 Jmax -K 1 Kmax -L 1 Lmax -col pink -Z 6
